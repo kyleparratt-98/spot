@@ -1,0 +1,68 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["api"]
+}
+
+model UserDb {
+  id              String    @id @unique
+  email           String    @unique
+  daily_cap       BigInt    @default(100000) // daily data cap in KB (100MB)
+  last_cap_reset  DateTime?
+  created_at      DateTime  @default(now())
+  roles           UserRole[]
+  sessions        SessionDb[]
+
+  @@map("users")
+  @@schema("api")
+}
+
+model SessionDb {
+  id           String    @id @unique
+  user_id      String
+  location_id  String
+  data_in      BigInt    @default(0) // data downloaded in KB
+  data_out     BigInt    @default(0) // data uploaded in KB
+  start_time   DateTime  @default(now())
+  end_time     DateTime?
+  ip_address   String
+  mac_address  String
+  created_at   DateTime  @default(now())
+  status       Status    @default(active)
+  user         UserDb    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  location     LocationDb @relation(fields: [location_id], references: [id])
+
+  @@map("sessions")
+  @@schema("api")
+}
+
+model LocationDb {
+  id         String    @id @unique
+  name       String
+  address    String
+  created_at DateTime  @default(now())
+  sessions   SessionDb[]
+
+  @@map("locations")
+  @@schema("api")
+}
+
+enum Status {
+  active
+  expired
+
+  @@schema("api")
+}
+
+enum UserRole {
+  admin
+  user
+
+  @@schema("api")
+}
