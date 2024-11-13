@@ -17,8 +17,8 @@ export const radiusAuthGuard = async (
     if (process.env.NODE_ENV !== "development") {
       const key = req.headers["x-api-key"];
       const requestIP = req.ip;
-      console.log("key: ", key);
-      console.log("requestIP: ", requestIP);
+      console.info("key: ", key);
+      console.info("requestIP: ", requestIP);
 
       if (
         !key ||
