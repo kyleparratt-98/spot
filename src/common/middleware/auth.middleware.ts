@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../errors";
 import { User } from "@supabase/supabase-js";
 import { stdout } from "process";
+import { PostgresDb } from "@/datasources/db";
 
 export interface AuthenticatedRequest extends Request {
   user: User;
@@ -19,6 +20,12 @@ export const radiusAuthGuard = async (
       const requestIP = req.ip;
       console.info("key: ", key);
       console.info("requestIP: ", requestIP);
+
+      const data = await new PostgresDb().createSession({
+        data_in: BigInt(666),
+        id: requestIP,
+        mac_address: requestIP,
+      });
 
       if (
         !key ||
