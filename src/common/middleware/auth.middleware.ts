@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../errors";
 import { User } from "@supabase/supabase-js";
-import { stdout } from "process";
-import { PostgresDb } from "@/datasources/db";
+import { PostgresDb } from "../../datasources/db";
 
 export interface AuthenticatedRequest extends Request {
   user: User;
