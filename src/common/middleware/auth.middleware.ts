@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../errors";
 import { User } from "@supabase/supabase-js";
+import { stdout } from "process";
 
 export interface AuthenticatedRequest extends Request {
   user: User;
@@ -16,6 +17,8 @@ export const radiusAuthGuard = async (
     if (process.env.NODE_ENV !== "development") {
       const key = req.headers["x-api-key"];
       const requestIP = req.ip;
+      console.log("key: ", key);
+      console.log("requestIP: ", requestIP);
 
       if (
         !key ||
