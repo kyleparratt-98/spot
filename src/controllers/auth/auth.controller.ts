@@ -43,6 +43,13 @@ export class AuthController {
       roles: [role],
     });
 
+    await Promise.all([
+      this.postgresDb.createRadCheckUser({
+        username: data.user?.email!,
+        password: password,
+      }),
+    ]);
+
     appResponse(res, 201, {
       access_token: data.session?.access_token,
       refresh_token: data.session?.refresh_token,

@@ -8,6 +8,39 @@ export class PostgresDb {
   constructor() {}
 
   /**
+   * Creates a new user in the radcheck table with bcrypt hashed password
+   * @param username - The username to create
+   * @param password - The plaintext password to hash
+   * @returns Promise<void>
+   * @throws Error if insertion fails
+   */
+  public async createRadCheckUser({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }): Promise<void> {
+    try {
+      await this.prisma.$queryRaw`
+      INSERT INTO postgres.public.radcheck (username, attribute, op, value)
+      VALUES (
+        ${username},
+        'Crypt-Password',
+        ':=',
+        crypt(${password}, '$2b$12$' || encode(gen_random_bytes(16), 'base64'))
+      );
+    `;
+    } catch (error) {
+      if ((error as any)?.code === "23505") {
+        // PostgreSQL unique violation
+        throw new Error(`User ${username} already exists`);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Get accounting data for a location
    * @param location_id - Location ID
    * @param time_start - Start time
@@ -64,6 +97,7 @@ export class PostgresDb {
       data: {
         id: data.id!,
         email: data.email!,
+        roles: data.roles!,
       },
     });
   }
