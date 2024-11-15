@@ -49,7 +49,32 @@ class App {
   }
 
   private initializeMiddleware(): void {
-    this.app.use(cors());
+    const allowedOrigins = [
+      "http://localhost:5173", // Vue dev server
+      "http://localhost:3000", // Alternative local dev
+      process.env.FRONTEND_URL || "", // Production frontend
+    ].filter(Boolean); // Remove any undefined values
+
+    this.app.use(
+      cors({
+        origin: (origin, callback) => {
+          // Allow requests with no origin (like Postman)
+          if (!origin) {
+            return callback(null, true);
+          }
+
+          // Allow requests from any allowed origins
+          if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+          }
+
+          callback(null, false);
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+      })
+    );
     this.app.use(express.json({ limit: "50mb" }));
     this.app.use(
       express.urlencoded({
