@@ -2,6 +2,7 @@ import { errorMiddleware } from "./common/middleware/errorHandler.middleware";
 import express from "express";
 import { HttpException } from "./common/errors";
 import router from "./controllers";
+import cors from "cors";
 
 class App {
   public app: express.Application;
@@ -48,6 +49,7 @@ class App {
   }
 
   private initializeMiddleware(): void {
+    this.app.use(cors());
     this.app.use(express.json({ limit: "50mb" }));
     this.app.use(
       express.urlencoded({
